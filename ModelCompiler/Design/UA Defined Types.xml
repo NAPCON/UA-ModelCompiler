@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ModelDesign xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" TargetNamespace="http://opcfoundation.org/UA/" TargetVersion="1.04" TargetPublicationDate="2018-12-01T00:00:00Z" TargetXmlNamespace="http://opcfoundation.org/UA/" tns:ns="http://opcfoundation.org/UA/" uax:ns="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:tns="http://opcfoundation.org/UA/" xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
+<ModelDesign xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" TargetNamespace="http://opcfoundation.org/UA/" TargetVersion="1.04" TargetPublicationDate="2019-01-15T00:00:00Z" TargetXmlNamespace="http://opcfoundation.org/UA/" tns:ns="http://opcfoundation.org/UA/" uax:ns="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:tns="http://opcfoundation.org/UA/" xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
   <Namespaces>
     <Namespace Name="OpcUa" Prefix="Opc.Ua" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd">http://opcfoundation.org/UA/</Namespace>
   </Namespaces>
@@ -550,6 +550,9 @@
   <Property SymbolicName="tns:DefaultInputValues" PartNo="3" DataType="tns:BaseDataType" ValueRank="Array">
     <Description>Specifies the default values for optional input arguments.</Description>
   </Property>
+  <Property SymbolicName="tns:DefaultInstanceBrowseName" PartNo="3" DataType="tns:QualifiedName" ValueRank="Scalar">
+    <Description>Allows the definition of BrowseName on an ObjectType that all instances should use by default.</Description>
+  </Property>
   <DataType SymbolicName="tns:ImageBMP" PartNo="3" BaseType="tns:Image">
     <Description>An image encoded in BMP format.</Description>
   </DataType>
@@ -871,7 +874,7 @@
       </Object>
       <Property SymbolicName="tns:DefaultRolePermissions" ModellingRule="Optional" DataType="tns:RolePermissionType" ValueRank="Array" />
       <Property SymbolicName="tns:DefaultUserRolePermissions" ModellingRule="Optional" DataType="tns:RolePermissionType" ValueRank="Array" />
-      <Property SymbolicName="tns:DefaultAccessRestrictions" ModellingRule="Optional" DataType="tns:UInt16" />
+      <Property SymbolicName="tns:DefaultAccessRestrictions" ModellingRule="Optional" DataType="tns:AccessRestrictionType" />
     </Children>
   </ObjectType>
   <ObjectType SymbolicName="tns:NamespacesType" PartNo="5" BaseType="tns:BaseObjectType">
@@ -1457,7 +1460,7 @@
   </VariableType>
   <ObjectType SymbolicName="tns:StateType" PartNo="5">
     <Children>
-      <Property SymbolicName="tns:StateNumber" ModellingRule="Mandatory" DataType="tns:UInt32" />
+      <Property SymbolicName="tns:StateNumber" ModellingRule="Optional" DataType="tns:UInt32" />
     </Children>
     <ClassName>StateMachineState</ClassName>
   </ObjectType>
@@ -1550,9 +1553,11 @@
     <Children>
       <Object SymbolicName="tns:FileDirectoryName_Placeholder" TypeDefinition="tns:FileDirectoryType" ModellingRule="OptionalPlaceholder">
         <BrowseName>&lt;FileDirectoryName&gt;</BrowseName>
+        <ReferenceType>tns:Organizes</ReferenceType>
       </Object>
       <Object SymbolicName="tns:FileName_Placeholder" TypeDefinition="tns:FileType" ModellingRule="OptionalPlaceholder">
         <BrowseName>&lt;FileName&gt;</BrowseName>
+        <ReferenceType>tns:Organizes</ReferenceType>
       </Object>
       <Method SymbolicName="tns:CreateDirectory" TypeDefinition="tns:CreateDirectoryMethodType" />
       <Method SymbolicName="tns:CreateFile" TypeDefinition="tns:CreateFileMethodType" />
@@ -2051,6 +2056,43 @@
       </Reference>
     </References>
   </Object>
+  <ObjectType SymbolicName="tns:DictionaryEntryType" PartNo="5" ReleaseStatus="Draft" BaseType="tns:BaseObjectType" IsAbstract="true">
+    <Children>
+      <Object SymbolicName="tns:DictionaryEntryName_Placeholder" TypeDefinition="tns:DictionaryEntryType" ModellingRule="OptionalPlaceholder">
+        <BrowseName>&lt;DictionaryEntryName&gt;</BrowseName>
+      </Object>
+    </Children>
+  </ObjectType>
+  <ObjectType SymbolicName="tns:DictionaryFolderType" PartNo="5" ReleaseStatus="Draft" BaseType="tns:FolderType">
+    <Children>
+      <Object SymbolicName="tns:DictionaryFolderName_Placeholder" TypeDefinition="tns:DictionaryFolderType" ModellingRule="OptionalPlaceholder">
+        <BrowseName>&lt;DictionaryFolderName&gt;</BrowseName>
+      </Object>
+      <Object SymbolicName="tns:DictionaryEntryName_Placeholder" TypeDefinition="tns:DictionaryEntryType" ModellingRule="OptionalPlaceholder">
+        <BrowseName>&lt;DictionaryEntryName&gt;</BrowseName>
+      </Object>
+    </Children>
+  </ObjectType>
+  <Object SymbolicName="tns:Dictionaries" PartNo="5" ReleaseStatus="Draft" TypeDefinition="tns:DictionaryFolderType" ModellingRule="None">
+    <References>
+      <Reference IsInverse="true">
+        <ReferenceType>tns:HasComponent</ReferenceType>
+        <TargetId>tns:Server</TargetId>
+      </Reference>
+    </References>
+  </Object>
+  <ReferenceType SymbolicName="tns:HasDictionaryEntry" PartNo="5" ReleaseStatus="Draft" BaseType="tns:NonHierarchicalReferences">
+    <InverseName>DictionaryEntryOf</InverseName>
+  </ReferenceType>
+  <ObjectType SymbolicName="tns:IrdiDictionaryEntryType" PartNo="5" ReleaseStatus="Draft" BaseType="tns:DictionaryEntryType" />
+  <ObjectType SymbolicName="tns:UriDictionaryEntryType" PartNo="5" ReleaseStatus="Draft" BaseType="tns:DictionaryEntryType" />
+  <ObjectType SymbolicName="tns:BaseInterfaceType" PartNo="5" ReleaseStatus="Draft" BaseType="tns:BaseObjectType" IsAbstract="true" />
+  <ReferenceType SymbolicName="tns:HasInterface" PartNo="5" ReleaseStatus="Draft" BaseType="tns:NonHierarchicalReferences">
+    <InverseName>InterfaceOf</InverseName>
+  </ReferenceType>
+  <ReferenceType SymbolicName="tns:HasAddIn" PartNo="5" ReleaseStatus="Draft" BaseType="tns:NonHierarchicalReferences">
+    <InverseName>AddInOf</InverseName>
+  </ReferenceType>
   <VariableType SymbolicName="tns:DataItemType" PartNo="8" BaseType="tns:BaseDataVariableType" DataType="tns:BaseDataType" ValueRank="ScalarOrArray">
     <Description>
       A variable that contains live automation data.
@@ -5932,6 +5974,9 @@
       <Field Name="DaylightSavingInOffset" DataType="tns:Boolean" />
     </Fields>
   </DataType>
+  <DataType SymbolicName="tns:Index" SymbolicId="tns:Index" PartNo="4" BaseType="tns:UInt32" NoArraysAllowed="true">
+    <Description>This primitive data type is a UInt32 that identifies an element of an array.</Description>
+  </DataType>
   <DataType SymbolicName="tns:IntegerId" SymbolicId="tns:IntegerId" PartNo="4" BaseType="tns:UInt32" NoArraysAllowed="true">
     <Description>A numeric identifier for an object.</Description>
   </DataType>
@@ -7351,7 +7396,7 @@
       <Field Name="TargetId" DataType="tns:ExpandedNodeId">
         <Description>The id of the target node.</Description>
       </Field>
-      <Field Name="RemainingPathIndex" DataType="tns:UInt32">
+      <Field Name="RemainingPathIndex" DataType="tns:Index">
         <Description>The index of the target in the relative path. UInt32.MaxValue if the entire path was processed.</Description>
       </Field>
     </Fields>
@@ -7639,13 +7684,13 @@
       <Field Name="NodeId" DataType="tns:NodeId" />
       <Field Name="IndexRange" DataType="tns:NumericRange" />
       <Field Name="DataEncoding" DataType="tns:QualifiedName" />
-      <Field Name="ContinuationPoint" DataType="tns:ByteString" />
+      <Field Name="ContinuationPoint" DataType="tns:ContinuationPoint" />
     </Fields>
   </DataType>
   <DataType SymbolicName="tns:HistoryReadResult" SymbolicId="tns:HistoryReadResult" PartNo="4" NotInAddressSpace="true" Purpose="ServicesOnly" BaseType="tns:Structure" NoClassGeneration="true">
     <Fields>
       <Field Name="StatusCode" DataType="tns:StatusCode" />
-      <Field Name="ContinuationPoint" DataType="tns:ByteString" />
+      <Field Name="ContinuationPoint" DataType="tns:ContinuationPoint" />
       <Field Name="HistoryData" DataType="tns:Structure" />
     </Fields>
   </DataType>

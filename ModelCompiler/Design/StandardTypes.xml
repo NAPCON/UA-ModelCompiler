@@ -8,7 +8,7 @@
   xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd"
   TargetNamespace="http://opcfoundation.org/UA/"
   TargetVersion="1.04"
-  TargetPublicationDate="2018-12-01T00:00:00Z"
+  TargetPublicationDate="2019-01-15T00:00:00Z"
 >
   <opc:Namespaces>
     <opc:Namespace Name="OpcUa" Prefix="Opc.Ua" InternalPrefix="Opc.Ua.Server" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd">http://opcfoundation.org/UA/</opc:Namespace>
@@ -136,6 +136,10 @@
     <opc:Description>Specifies the default values for optional input arguments.</opc:Description>
   </opc:Property>
 
+  <opc:Property SymbolicName="DefaultInstanceBrowseName" DataType="QualifiedName" ValueRank="Scalar" PartNo="3">
+    <opc:Description>Allows the definition of BrowseName on an ObjectType that all instances should use by default.</opc:Description>
+  </opc:Property>
+  
   <opc:DataType SymbolicName="ImageBMP" BaseType="Image" PartNo="3">
     <opc:Description>An image encoded in BMP format.</opc:Description>
   </opc:DataType>
@@ -479,7 +483,7 @@
       </opc:Object>
       <opc:Property SymbolicName="DefaultRolePermissions" DataType="ua:RolePermissionType" ValueRank="Array" ModellingRule="Optional" />
       <opc:Property SymbolicName="DefaultUserRolePermissions" DataType="ua:RolePermissionType" ValueRank="Array" ModellingRule="Optional" />
-      <opc:Property SymbolicName="DefaultAccessRestrictions" DataType="ua:UInt16" ModellingRule="Optional" />
+      <opc:Property SymbolicName="DefaultAccessRestrictions" DataType="ua:AccessRestrictionType" ModellingRule="Optional" />
     </opc:Children>
   </opc:ObjectType>
 
@@ -1209,7 +1213,7 @@
 
   <opc:ObjectType SymbolicName="StateType" PartNo="5">
     <opc:Children>
-      <opc:Property SymbolicName="StateNumber" DataType="ua:UInt32" ModellingRule="Mandatory"></opc:Property>
+      <opc:Property SymbolicName="StateNumber" DataType="ua:UInt32" ModellingRule="Optional"></opc:Property>
     </opc:Children>
     <opc:ClassName>StateMachineState</opc:ClassName>
   </opc:ObjectType>
@@ -1267,7 +1271,6 @@
   </opc:ObjectType>
 
   <!-- Part 5 Annex C - File Transfer -->
-  
   <!-- FileType eariler in the document -->
 
   <opc:DataType SymbolicName="OpenFileMode" BaseType="Enumeration" PartNo="5">
@@ -1331,9 +1334,11 @@
     <opc:Children>
       <opc:Object SymbolicName="FileDirectoryName_Placeholder" TypeDefinition="FileDirectoryType" ModellingRule="OptionalPlaceholder">
         <opc:BrowseName>&lt;FileDirectoryName&gt;</opc:BrowseName>
+        <opc:ReferenceType>ua:Organizes</opc:ReferenceType>
       </opc:Object>
       <opc:Object SymbolicName="FileName_Placeholder" TypeDefinition="FileType" ModellingRule="OptionalPlaceholder">
         <opc:BrowseName>&lt;FileName&gt;</opc:BrowseName>
+        <opc:ReferenceType>ua:Organizes</opc:ReferenceType>
       </opc:Object>
       <opc:Method SymbolicName="CreateDirectory" TypeDefinition="CreateDirectoryMethodType">
       </opc:Method>
@@ -1868,7 +1873,58 @@
       </opc:Reference>
     </opc:References>
   </opc:Object>
+
+  <!-- Part 5 Annex G - Dictionary Reference -->
+
+  <opc:ObjectType SymbolicName="DictionaryEntryType" BaseType="ua:BaseObjectType" IsAbstract="true" PartNo="5" ReleaseStatus="Draft">
+    <opc:Children>
+      <opc:Object SymbolicName="DictionaryEntryName_Placeholder" TypeDefinition="DictionaryEntryType" ModellingRule="OptionalPlaceholder">
+        <opc:BrowseName>&lt;DictionaryEntryName&gt;</opc:BrowseName>
+      </opc:Object>
+    </opc:Children>
+  </opc:ObjectType>
   
+  <opc:ObjectType SymbolicName="DictionaryFolderType" BaseType="ua:FolderType" PartNo="5" ReleaseStatus="Draft">
+    <opc:Children>
+      <opc:Object SymbolicName="DictionaryFolderName_Placeholder" TypeDefinition="DictionaryFolderType" ModellingRule="OptionalPlaceholder">
+        <opc:BrowseName>&lt;DictionaryFolderName&gt;</opc:BrowseName>
+      </opc:Object>
+      <opc:Object SymbolicName="DictionaryEntryName_Placeholder" TypeDefinition="DictionaryEntryType" ModellingRule="OptionalPlaceholder">
+        <opc:BrowseName>&lt;DictionaryEntryName&gt;</opc:BrowseName>
+      </opc:Object>
+    </opc:Children>
+  </opc:ObjectType>
+
+  <opc:Object SymbolicName="Dictionaries" TypeDefinition="DictionaryFolderType" ModellingRule="None" PartNo="5" ReleaseStatus="Draft">
+    <opc:References>
+      <opc:Reference IsInverse="true">
+        <opc:ReferenceType>ua:HasComponent</opc:ReferenceType>
+        <opc:TargetId>ua:Server</opc:TargetId>
+      </opc:Reference>
+    </opc:References>
+  </opc:Object>
+
+  <opc:ReferenceType SymbolicName="HasDictionaryEntry" BaseType="ua:NonHierarchicalReferences" PartNo="5" ReleaseStatus="Draft">
+    <opc:InverseName>DictionaryEntryOf</opc:InverseName>
+  </opc:ReferenceType>
+
+  <opc:ObjectType SymbolicName="IrdiDictionaryEntryType" BaseType="ua:DictionaryEntryType" PartNo="5" ReleaseStatus="Draft">
+  </opc:ObjectType>
+
+  <opc:ObjectType SymbolicName="UriDictionaryEntryType" BaseType="ua:DictionaryEntryType" PartNo="5" ReleaseStatus="Draft">
+  </opc:ObjectType>
+
+  <opc:ObjectType SymbolicName="BaseInterfaceType" BaseType="ua:BaseObjectType" IsAbstract="true" PartNo="5" ReleaseStatus="Draft">
+  </opc:ObjectType>
+
+  <opc:ReferenceType SymbolicName="HasInterface" BaseType="ua:NonHierarchicalReferences" PartNo="5" ReleaseStatus="Draft">
+    <opc:InverseName>InterfaceOf</opc:InverseName>
+  </opc:ReferenceType>
+
+  <opc:ReferenceType SymbolicName="HasAddIn" BaseType="ua:NonHierarchicalReferences" PartNo="5" ReleaseStatus="Draft">
+    <opc:InverseName>AddInOf</opc:InverseName>
+  </opc:ReferenceType>
+
   <!-- Part 8 -->
 
   <opc:VariableType SymbolicName="DataItemType" BaseType="ua:BaseDataVariableType" DataType="ua:BaseDataType" ValueRank="ScalarOrArray" PartNo="8">
@@ -3016,7 +3072,7 @@
       <opc:Property SymbolicName="Rate" DataType="ua:UInt16" />
     </opc:Children>
   </opc:VariableType>
-    
+
   <!-- Part 10 -->
 
   <opc:ObjectType SymbolicName="ProgramStateMachineType" BaseType="FiniteStateMachineType" PartNo="10">
@@ -5624,7 +5680,7 @@
   <opc:ObjectType SymbolicName="DatagramWriterGroupTransportType" BaseType="WriterGroupTransportType" PartNo="14">
     <opc:Children>
       <opc:Property SymbolicName="MessageRepeatCount" DataType="ua:Byte" ModellingRule="Optional" />
-      <opc:Property SymbolicName="MessageRepeatDelay" DataType="ua:Duration" ModellingRule="Optional" />
+      <opc:Property SymbolicName="MessageRepeatDelay" DataType="ua:Duration" ModellingRule="Optional" /> 
     </opc:Children>
   </opc:ObjectType>
 
