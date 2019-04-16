@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2016 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  *
@@ -187,10 +187,12 @@ namespace Opc.Ua.ModelCompiler
                 bool generateMultiFile = false;
                 bool useXmlInitializers = false;
                 string[] excludeCategories = null;
+                bool includeDisplayNames = false;
 
                 bool updateHeaders = false;
                 string inputDirectory = ".";
                 string filePattern = "*.xml";
+                string specificationVersion = "";
                 var licenseType = HeaderUpdateTool.LicenseType.MITXML;
                 bool silent = false;
 
@@ -310,6 +312,17 @@ namespace Opc.Ua.ModelCompiler
                         continue;
                     }
 
+                    if (tokens[ii] == "-version")
+                    {
+                        if (ii >= tokens.Count - 1)
+                        {
+                            throw new ArgumentException("Incorrect number of parameters specified with the -version option.");
+                        }
+
+                        specificationVersion = tokens[++ii];
+                        continue;
+                    }
+
                     if (tokens[ii] == "-ansic")
                     {
                         if (ii >= tokens.Count - 1)
@@ -324,6 +337,12 @@ namespace Opc.Ua.ModelCompiler
                     if (tokens[ii] == "-useXmlInitializers")
                     {
                         useXmlInitializers = true;
+                        continue;
+                    }
+                    
+                    if (tokens[ii] == "-includeDisplayNames")
+                    {
+                        includeDisplayNames = true;
                         continue;
                     }
 
@@ -386,7 +405,7 @@ namespace Opc.Ua.ModelCompiler
                     File.Create(identifierFile).Close();
                 }
 
-                generator.ValidateAndUpdateIds(designFiles, identifierFile, startId);
+                generator.ValidateAndUpdateIds(designFiles, identifierFile, startId, specificationVersion);
 
                 if (!String.IsNullOrEmpty(stackRootDir))
                 {
@@ -395,7 +414,7 @@ namespace Opc.Ua.ModelCompiler
                         throw new ArgumentException("The directory does not exist: " + stackRootDir);
                     }
 
-                    StackGenerator.GenerateDotNet(stackRootDir);
+                    StackGenerator.GenerateDotNet(stackRootDir, specificationVersion);
                 }
 
                 if (!String.IsNullOrEmpty(ansicRootDir))
@@ -405,7 +424,7 @@ namespace Opc.Ua.ModelCompiler
                         throw new ArgumentException("The directory does not exist: " + ansicRootDir);
                     }
 
-                    StackGenerator.GenerateAnsiC(ansicRootDir);
+                    StackGenerator.GenerateAnsiC(ansicRootDir, specificationVersion);
                     generator.GenerateIdentifiersAndNamesForAnsiC(ansicRootDir, excludeCategories);
                 }
 
@@ -413,11 +432,11 @@ namespace Opc.Ua.ModelCompiler
                 {
                     if (generateMultiFile)
                     {
-                        generator.GenerateMultipleFiles(outputDir, useXmlInitializers, excludeCategories);
+                        generator.GenerateMultipleFiles(outputDir, useXmlInitializers, excludeCategories, includeDisplayNames);
                     }
                     else
                     {
-                        generator.GenerateInternalSingleFile(outputDir, useXmlInitializers, excludeCategories);
+                        generator.GenerateInternalSingleFile(outputDir, useXmlInitializers, excludeCategories, includeDisplayNames);
                     }
                 }
             }

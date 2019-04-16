@@ -9,13 +9,68 @@
   TargetNamespace="http://fdi-cooperation.com/OPCUA/FDI7/"
   TargetXmlNamespace="http://fdi-cooperation.com/OPCUA/FDI7/"
   TargetNamespaceVersion="1.3"
+  TargetPublicationDate="2017-07-14T00:00:00Z"
   xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
 
   <Namespaces>
     <Namespace Name="OpcUaFdi7" Prefix="Opc.Ua.Fdi7" XmlNamespace="http://fdi-cooperation.com/OPCUA/FDI7/Types.xsd" XmlPrefix="FDI7">http://fdi-cooperation.com/OPCUA/FDI7/</Namespace>
-    <Namespace Name="OpcUaDi" Prefix="Opc.Ua.Di" XmlNamespace="http://opcfoundation.org/UA/DI/Types.xsd" XmlPrefix="DI" FilePath="OpcUaDiModel">http://opcfoundation.org/UA/DI/</Namespace>
-    <Namespace Name="OpcUa" Prefix="Opc.Ua" InternalPrefix="Opc.Ua.Server" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd" XmlPrefix="OpcUa">http://opcfoundation.org/UA/</Namespace>
+    <Namespace Name="OpcUaDi" Prefix="Opc.Ua.Di" Version="1.01" PublicationDate="2012-12-31T00:00:00Z" XmlNamespace="http://opcfoundation.org/UA/DI/Types.xsd" XmlPrefix="DI" FilePath="OpcUaDiModel">http://opcfoundation.org/UA/DI/</Namespace>
+    <Namespace Name="OpcUa" Version="1.03" PublicationDate="2013-12-02T00:00:00Z" Prefix="Opc.Ua" InternalPrefix="Opc.Ua.Server" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd" XmlPrefix="OpcUa">http://opcfoundation.org/UA/</Namespace>
   </Namespaces>
+  
+  <Object SymbolicName="FDI:OpcUaFdi7NamespaceMetadata" TypeDefinition="ua:NamespaceMetadataType">
+    <BrowseName>http://fdi-cooperation.com/OPCUA/FDI7/</BrowseName>
+    <Children>
+      <Property SymbolicName="ua:NamespaceUri" DataType="ua:String">
+        <DefaultValue>
+          <uax:String>http://fdi-cooperation.com/OPCUA/FDI7/</uax:String>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:NamespaceVersion" DataType="ua:String">
+        <DefaultValue>
+          <uax:String>1.3</uax:String>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:NamespacePublicationDate" DataType="ua:DateTime">
+        <DefaultValue>
+          <uax:DateTime>2017-07-14</uax:DateTime>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:IsNamespaceSubset" DataType="ua:Boolean">
+        <DefaultValue>
+          <uax:Boolean>false</uax:Boolean>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:StaticNodeIdTypes" DataType="ua:IdType" ValueRank="Array">
+        <DefaultValue>
+          <uax:ListOfInt32>
+            <uax:Int32>0</uax:Int32>
+          </uax:ListOfInt32>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:StaticNumericNodeIdRange" DataType="ua:NumericRange" ValueRank="Array">
+        <DefaultValue>
+          <uax:ListOfString>
+            <uax:String>1:65535</uax:String>
+          </uax:ListOfString>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:StaticStringNodeIdPattern" DataType="ua:String">
+        <DefaultValue>
+          <uax:String></uax:String>
+        </DefaultValue>
+      </Property>
+      <Property SymbolicName="ua:DefaultRolePermissions" ModellingRule="Mandatory" />
+      <Property SymbolicName="ua:DefaultUserRolePermissions" ModellingRule="Mandatory" />
+      <Property SymbolicName="ua:DefaultAccessRestrictions" ModellingRule="Mandatory" />
+    </Children>
+    <References>
+      <Reference IsInverse="true">
+        <ReferenceType>ua:HasComponent</ReferenceType>
+        <TargetId>ua:Server_Namespaces</TargetId>
+      </Reference>
+    </References>
+  </Object>
 
   <ObjectType SymbolicName="FDI:Foundation_H1" BaseType="DI:ProtocolType" IsAbstract="false"/>
   <ObjectType SymbolicName="FDI:Foundation_HSE" BaseType="DI:ProtocolType" IsAbstract="false"/>
@@ -27,40 +82,40 @@
   <ObjectType SymbolicName="FDI:GenericProtocol" BaseType="DI:ProtocolType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:ProtocolIdentifier" DataType="ua:String" ModellingRule="Mandatory" />
-	</Children>
+    </Children>
   </ObjectType>
 
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_Foundation_H1" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:Address" DataType="ua:Byte" ModellingRule="Mandatory" />
       <Property SymbolicName="FDI:OrdinalNumber" DataType="ua:Int32" ModellingRule="Optional" />
       <Property SymbolicName="FDI:SIFConnection" DataType="ua:Boolean" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_Foundation_HSE" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:Address" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="16" />
       <Property SymbolicName="FDI:OrdinalNumber" DataType="ua:Int32" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_Profibus_DP" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:Address" DataType="ua:Byte" ModellingRule="Mandatory" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_Profinet_IO" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:MAC" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="16" />
       <Property SymbolicName="FDI:IPv4" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="4" />
       <Property SymbolicName="FDI:DNSNAME" DataType="ua:String" ModellingRule="Mandatory" />
       <Property SymbolicName="FDI:VALID" DataType="ua:Boolean" ModellingRule="Mandatory" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_HART_TP5" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:DevAddr" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="5" />
@@ -69,9 +124,9 @@
       <Property SymbolicName="FDI:DevRev" DataType="ua:UInt16" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevTag" DataType="ua:String" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevPollAddr" DataType="ua:Byte" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_HART_TP6" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:DevAddr" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="5" />
@@ -80,9 +135,9 @@
       <Property SymbolicName="FDI:DevRev" DataType="ua:UInt16" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevTag" DataType="ua:String" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevPollAddr" DataType="ua:Byte" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_HART_TP7" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:DevAddr" DataType="ua:Byte" ModellingRule="Mandatory" ValueRank="Array" ArrayDimensions="5" />
@@ -91,9 +146,9 @@
       <Property SymbolicName="FDI:DevRev" DataType="ua:UInt16" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevTag" DataType="ua:String" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevPollAddr" DataType="ua:Byte" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ConnectionPoint_ISA100_Wireless" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:IPAddress" DataType="ua:ByteString" ModellingRule="Mandatory" />
@@ -102,17 +157,17 @@
       <Property SymbolicName="FDI:DevRev" DataType="ua:UInt16" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevTag" DataType="ua:String" ModellingRule="Optional" />
       <Property SymbolicName="FDI:DevPollAddr" DataType="ua:Byte" ModellingRule="Optional" />
-	</Children>
+    </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:GenericConnectionPoint" BaseType="DI:ConnectionPointType" IsAbstract="false">
     <Children>
       <Property SymbolicName="FDI:Address" DataType="ua:ByteString" ModellingRule="Mandatory" />
       <Property SymbolicName="FDI:ProtocolIdentifier" DataType="ua:String" ModellingRule="Mandatory" />
-	</Children>
+    </Children>
   </ObjectType>
 
-  
+
   <Method SymbolicName="FDI:CommunicationServerTypeInitializeMethodType">
     <OutputArguments>
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
@@ -246,9 +301,9 @@
 
   <ObjectType SymbolicName="FDI:ServerCommunicationDeviceType" BaseType="DI:DeviceType" IsAbstract="true">
     <Children>
+      <Property SymbolicName="FDI:ListOfCommunicationProfiles" DataType="ua:String" ModellingRule="Mandatory" ValueRank="Array" />
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Optional">
         <Children>
-          <Property SymbolicName="FDI:ListOfCommunicationProfiles" DataType="ua:String" ModellingRule="Mandatory" ValueRank="Array" />
           <Method SymbolicName="FDI:Scan" TypeDefinition="FDI:ScanMethodType" ModellingRule="Optional" />
           <Method SymbolicName="FDI:ResetScan" TypeDefinition="FDI:ResetScanMethodType" ModellingRule="Optional" />
           <Method SymbolicName="FDI:AddComponent" TypeDefinition="FDI:AddComponentMethodType" ModellingRule="Optional" />
@@ -417,7 +472,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:DisconnectMethodType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -460,7 +515,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:TransferMethodPROFIBUSType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -475,7 +530,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:TransferMethodPROFINETType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -492,7 +547,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:TransferMethodHARTType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -504,7 +559,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:TransferMethodISA100_WirelessType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -553,7 +608,7 @@
       <Field Name="Size" DataType="ua:UInt32" />
     </Fields>
   </DataType>
-  
+
   <Method SymbolicName="FDI:TransferMethodGENERICType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -599,7 +654,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <Method SymbolicName="FDI:GetPublishedDataMethodHARTType">
     <InputArguments>
       <Argument Name="CommunicationRelationId" DataType="ua:ByteString" />
@@ -625,7 +680,7 @@
       <Argument Name="ServiceError" DataType="ua:Integer" ValueRank="Scalar" />
     </OutputArguments>
   </Method>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationServiceType" BaseType="DI:DeviceType" IsAbstract="true">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -635,7 +690,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationFFH1ServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -647,7 +702,7 @@
       </Object>
     </Children>
   </ObjectType>
-   
+
   <ObjectType SymbolicName="FDI:ServerCommunicationFFHSEServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -659,7 +714,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationPROFIBUSServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -670,7 +725,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationPROFINETServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -681,7 +736,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationHARTServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -693,7 +748,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationISA100_WirelessServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -705,7 +760,7 @@
       </Object>
     </Children>
   </ObjectType>
-  
+
   <ObjectType SymbolicName="FDI:ServerCommunicationGENERICServiceType" BaseType="FDI:ServerCommunicationServiceType" IsAbstract="false">
     <Children>
       <Object SymbolicName="DI:MethodSet" TypeDefinition="ua:BaseObjectType" ModellingRule="Mandatory">
@@ -716,6 +771,5 @@
       </Object>
     </Children>
   </ObjectType>
- 
-  
+
 </ModelDesign>

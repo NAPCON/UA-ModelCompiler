@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2016 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  *
@@ -60,6 +60,7 @@ namespace Opc.Ua.ModelCompiler
         private ModelCompilerValidator m_validator;
         private ModelDesign m_model;
         private bool m_useXmlInitializers;
+        private bool m_includeDisplayNames;
         private string[] m_excludedCategories;
         #endregion
 
@@ -72,11 +73,25 @@ namespace Opc.Ua.ModelCompiler
         }
 
         /// <summary>
+        /// Whether to include the display names.
+        /// </summary>
+        public bool IncludeDisplayNames
+        {
+            get { return m_includeDisplayNames; }
+        }
+
+        /// <summary>
         /// Generates the source code files.
         /// </summary>
-        public virtual void ValidateAndUpdateIds(IList<string> designFilePaths, string identifierFilePath, uint startId)
+        public virtual void ValidateAndUpdateIds(IList<string> designFilePaths, string identifierFilePath, uint startId, string specificationVersion)
         {
             m_validator = new ModelCompilerValidator(startId);
+
+            if (!String.IsNullOrEmpty(specificationVersion))
+            {
+                m_validator.EmbeddedResourcePath = $"{m_validator.EmbeddedResourcePath}.{specificationVersion}";
+            }
+
             m_validator.Validate2(designFilePaths, identifierFilePath, false);
             m_model = m_validator.Dictionary;
         }
@@ -84,10 +99,11 @@ namespace Opc.Ua.ModelCompiler
         /// <summary>
         /// Generates a single file containing all of the classes.
         /// </summary>
-        public virtual void GenerateInternalSingleFile(string filePath, bool useXmlInitializers, string[] excludedCategories)
+        public virtual void GenerateInternalSingleFile(string filePath, bool useXmlInitializers, string[] excludedCategories, bool includeDisplayNames)
         {
             m_useXmlInitializers = useXmlInitializers;
             m_excludedCategories = excludedCategories;
+            m_includeDisplayNames = includeDisplayNames;
 
             // write type and object definitions.
             List<NodeDesign> nodes = GetNodeList();
@@ -101,10 +117,11 @@ namespace Opc.Ua.ModelCompiler
         /// <summary>
         /// Generates a single file containing all of the classes.
         /// </summary>
-        public virtual void GenerateMultipleFiles(string filePath, bool useXmlInitializers, string[] excludedCategories)
+        public virtual void GenerateMultipleFiles(string filePath, bool useXmlInitializers, string[] excludedCategories, bool includeDisplayNames)
         {
             m_useXmlInitializers = useXmlInitializers;
             m_excludedCategories = excludedCategories;
+            m_includeDisplayNames = includeDisplayNames;
 
             // write type and object definitions.
             List<NodeDesign> nodes = GetNodeList();
@@ -258,7 +275,8 @@ namespace Opc.Ua.ModelCompiler
                             PublicationDate = m_model.TargetPublicationDate,
                             PublicationDateSpecified = m_model.TargetPublicationDateSpecified
                         },
-                        (m_model.TargetPublicationDate != DateTime.UtcNow)? m_model.TargetPublicationDate:DateTime.MinValue);
+                        (m_model.TargetPublicationDate != DateTime.UtcNow)? m_model.TargetPublicationDate:DateTime.MinValue,
+                        true);
                 }
             }
 
@@ -311,15 +329,25 @@ namespace Opc.Ua.ModelCompiler
                     model.RequiredModel = new List<Export.ModelTableEntry>(m_model.Dependencies.Values).ToArray();
                 }
 
-                collection.SaveAsNodeSet2(context, ostrm, model, (m_model.TargetPublicationDate != DateTime.MinValue)? m_model.TargetPublicationDate:DateTime.MinValue);
+                collection.SaveAsNodeSet2(
+                    context, 
+                    ostrm, 
+                    model,
+                    (m_model.TargetPublicationDate != DateTime.MinValue)? m_model.TargetPublicationDate:DateTime.MinValue,
+                    true);
 
                 if (m_model.TargetNamespace == Namespaces.OpcUa)
                 {
-                    var servicesFilePath = String.Format(@"{0}\{1}.NodeSet2.Services.xml", filePath, m_model.TargetNamespaceInfo.Prefix);
+                    var nodeSetFilePath = String.Format(@"{0}\{1}.NodeSet2.Services.xml", filePath, m_model.TargetNamespaceInfo.Prefix);
 
-                    using (Stream servicesOstrm = File.Open(servicesFilePath, FileMode.Create))
+                    using (Stream ostrm2 = File.Open(nodeSetFilePath, FileMode.Create))
                     {
-                        collectionWithServices.SaveAsNodeSet2(context, servicesOstrm, model, (m_model.TargetPublicationDate != DateTime.MinValue) ? m_model.TargetPublicationDate : DateTime.MinValue);
+                        collectionWithServices.SaveAsNodeSet2(
+                            context,
+                            ostrm2,
+                            model,
+                            (m_model.TargetPublicationDate != DateTime.MinValue) ? m_model.TargetPublicationDate : DateTime.MinValue,
+                            true);
                     }
                 }
             }
@@ -1144,7 +1172,7 @@ namespace Opc.Ua.ModelCompiler
                 return null;
             }
 
-            if (dataType.Description.IsAutogenerated)
+            if (dataType.Description == null || dataType.Description.IsAutogenerated)
             {
                 return null;
             }
@@ -1327,6 +1355,7 @@ namespace Opc.Ua.ModelCompiler
                 switch (dataType.NumericId)
                 {
                     case DataTypes.PermissionType:
+                    case DataTypes.AccessRestrictionType:
                     case DataTypes.RolePermissionType:
                     case DataTypes.StructureDefinition:
                     case DataTypes.StructureField:
@@ -2395,7 +2424,7 @@ namespace Opc.Ua.ModelCompiler
             Array children = GetFields(node);
 
             template.AddReplacement("_NodeClass_", GetNodeClass(node));
-            template.AddReplacement("_Description_", node.Description.Value);
+            template.AddReplacement("_Description_", (node.Description != null)?node.Description.Value:"");
 
             template.AddReplacement("_TypeName_", node.SymbolicName.Name);
             template.AddReplacement("_NamespaceUri_", GetConstantForNamespace(node.SymbolicName.Namespace));
@@ -3377,17 +3406,17 @@ namespace Opc.Ua.ModelCompiler
 
             template.WriteNextLine(context.Prefix);
 
-            string format = "{1} {0} = ({1})inputArguments[{2}];";
+            string format = "{1} {0} = ({1})_inputArguments[{2}];";
 
             if (field.DataTypeNode.BasicDataType == BasicDataType.UserDefined)
             {
                 if (field.ValueRank == ValueRank.Scalar)
                 {
-                    format = "{1} {0} = ({1})ExtensionObject.ToEncodeable((ExtensionObject)inputArguments[{2}]);";
+                    format = "{1} {0} = ({1})ExtensionObject.ToEncodeable((ExtensionObject)_inputArguments[{2}]);";
                 }
                 else
                 {
-                    format = "{1} {0} = ({1})ExtensionObject.ToArray(inputArguments[{2}], typeof(" + GetMethodArgumentType(field.DataTypeNode, ValueRank.Scalar) + "));";
+                    format = "{1} {0} = ({1})ExtensionObject.ToArray(_inputArguments[{2}], typeof(" + GetMethodArgumentType(field.DataTypeNode, ValueRank.Scalar) + "));";
                 }
             }
 
@@ -3419,7 +3448,7 @@ namespace Opc.Ua.ModelCompiler
             template.WriteNextLine(context.Prefix);
 
             template.Write(
-                "{1} {0} = ({1})outputArguments[{2}];",
+                "{1} {0} = ({1})_outputArguments[{2}];",
                 GetChildFieldName(field).Substring(2),
                 GetMethodArgumentType(field.DataTypeNode, field.ValueRank),
                 context.Index);
@@ -3446,7 +3475,7 @@ namespace Opc.Ua.ModelCompiler
             template.WriteNextLine(context.Prefix);
 
             template.Write(
-                "outputArguments[{1}] = {0};",
+                "_outputArguments[{1}] = {0};",
                 GetChildFieldName(field).Substring(2),
                 context.Index);
 
@@ -3517,13 +3546,13 @@ namespace Opc.Ua.ModelCompiler
             template.Write("result = OnCall(");
 
             template.WriteNextLine(context.Prefix);
-            template.Write("    context,");
+            template.Write("    _context,");
 
             template.WriteNextLine(context.Prefix);
             template.Write("    this,");
 
             template.WriteNextLine(context.Prefix);
-            template.Write("    objectId");
+            template.Write("    _objectId");
 
             if (method.InputArguments != null)
             {
@@ -3784,7 +3813,7 @@ namespace Opc.Ua.ModelCompiler
 
                 bool emitDefaultValue = true;
 
-                template.AddReplacement("_Description_", field.Description.Value);
+                template.AddReplacement("_Description_", (field.Description != null)?field.Description.Value:"");
                 template.AddReplacement("_BrowseName_", field.Name);
                 template.AddReplacement("_TypeName_", GetSystemTypeName(field.DataTypeNode, field.ValueRank));
                 template.AddReplacement("_FieldName_", GetChildFieldName(field));
@@ -3815,7 +3844,7 @@ namespace Opc.Ua.ModelCompiler
                 instance = GetMergedInstance(instance);
             }
 
-            template.AddReplacement("_Description_", instance.Description.Value);
+            template.AddReplacement("_Description_", (instance.Description != null)?instance.Description.Value:"");
             template.AddReplacement("_ClassName_", GetClassName(instance));
             template.AddReplacement("_ChildName_", instance.SymbolicName.Name);
             template.AddReplacement("_FieldName_", GetChildFieldName(instance));
